@@ -1,21 +1,267 @@
 <!doctype html>
 <html lang="en">
-  \1
-  <meta name="description" content="Photography Landing Page — Professional photography in Gauteng (Weddings, Maternity, Events, Corporate).">
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Photography Landing Page</title>
-  
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "name": "Laxportraits", "image": "https://example.com/assets/images/og.jpg", "address": {"@type": "PostalAddress", "addressLocality": "Johannesburg", "addressRegion": "Gauteng", "addressCountry": "ZA"}, "areaServed": ["Johannesburg", "Pretoria", "Sandton", "Soweto", "Gauteng"], "url": "https://example.com", "telephone": "+27 00 000 0000", "priceRange": "R"}</script>
-
-  <link rel="stylesheet" href="assets/css/styles.css">
-\1
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Laxportraits | Gauteng Lifestyle & Wedding Photographer</title>
+    <meta name="description" content="Laxportraits delivers editorial wedding, lifestyle, and portrait photography across Gauteng. Book shoots, view curated highlights, and request bespoke packages." />
+    <meta name="robots" content="index,follow" />
+    <meta name="author" content="Laxportraits" />
+    <link rel="canonical" href="https://www.laxportraits.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Laxportraits" />
+    <meta property="og:title" content="Laxportraits | Gauteng Lifestyle & Wedding Photographer" />
+    <meta property="og:description" content="Editorial wedding, lifestyle, and portrait photography for couples, families, and brands in Gauteng." />
+    <meta property="og:url" content="https://www.laxportraits.com/" />
+    <meta property="og:image" content="https://www.laxportraits.com/assets/og-cover.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Laxportraits | Gauteng Lifestyle & Wedding Photographer" />
+    <meta name="twitter:description" content="Documenting weddings, maternity milestones, family stories, and brand campaigns around Gauteng." />
+    <meta name="twitter:image" content="https://www.laxportraits.com/assets/og-cover.jpg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Laxportraits",
+        "url": "https://www.laxportraits.com/",
+        "image": "https://www.laxportraits.com/assets/og-cover.jpg",
+        "description": "Editorial wedding, lifestyle, and portrait photography studio serving Johannesburg and Gauteng.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Johannesburg",
+          "addressRegion": "Gauteng",
+          "addressCountry": "ZA"
+        },
+        "areaServed": ["Johannesburg", "Pretoria", "Sandton", "Soweto", "Gauteng"],
+        "priceRange": "R",
+        "sameAs": [
+          "https://www.instagram.com/laxportraits",
+          "https://www.facebook.com/laxportraits"
+        ]
+      }
+    </script>
+  </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous"></script>
-<script src="assets/js/app.js"></script>
-\1
+    <noscript>
+      <div class="noscript">Enable JavaScript to experience motion effects. All core content and booking links are available below.</div>
+    </noscript>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#hero" aria-label="Laxportraits home">Laxportraits</a>
+        <nav aria-label="Primary">
+          <ul class="nav-list">
+            <li><a href="#services">Services</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#process">Experience</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+        <a class="cta" href="#booking">Book a call</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="hero" class="hero reveal" aria-labelledby="hero-title">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Johannesburg & Gauteng</p>
+            <h1 id="hero-title">Timeless photographs that feel like your story</h1>
+            <p>
+              Laxportraits specialises in editorial wedding, lifestyle, and portrait photography. We blend clean direction with real emotion so every frame feels personal, modern, and ready for print.
+            </p>
+            <div class="actions">
+              <a class="btn primary" href="#booking">Check availability</a>
+              <a class="btn ghost" href="#portfolio">View highlights</a>
+            </div>
+            <dl class="stats">
+              <div>
+                <dt>9+</dt>
+                <dd>years behind the lens</dd>
+              </div>
+              <div>
+                <dt>320</dt>
+                <dd>sessions captured</dd>
+              </div>
+              <div>
+                <dt>48 hr</dt>
+                <dd>preview delivery</dd>
+              </div>
+            </dl>
+          </div>
+          <figure class="hero-media" aria-label="Recent wedding portrait">
+            <div class="frame" role="img" aria-label="Joyful couple celebrating outdoors at sunset"></div>
+            <figcaption>Clean edits. Honest storytelling. Distinctive colour.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="services" class="section reveal-stagger" aria-labelledby="services-title">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="services-title">Signature photography services</h2>
+            <p>Designed for couples, families, and brands who value polished storytelling with fast delivery timelines.</p>
+          </div>
+          <div class="cards">
+            <article class="card">
+              <h3>Weddings & Elopements</h3>
+              <p>Full-day and intimate coverage with timeline support, detail-focused storytelling, and heirloom-ready edits.</p>
+            </article>
+            <article class="card">
+              <h3>Maternity & Family</h3>
+              <p>Studio or on-location sessions that capture candid connection and celebrate milestones without stiff posing.</p>
+            </article>
+            <article class="card">
+              <h3>Brand & Campaigns</h3>
+              <p>Editorial visuals for product, corporate, and influencer collaborations with direction and prop guidance.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="portfolio" class="section alt reveal" aria-labelledby="portfolio-title">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="portfolio-title">Curated highlights</h2>
+            <p>Each gallery is delivered with colour and black-and-white edits, web galleries, and print-ready exports.</p>
+          </div>
+          <div class="gallery">
+            <figure>
+              <div class="frame" role="img" aria-label="Elegant bridal portrait with natural light"></div>
+              <figcaption>Weddings</figcaption>
+            </figure>
+            <figure>
+              <div class="frame" role="img" aria-label="Family session laughing together in a botanical garden"></div>
+              <figcaption>Families</figcaption>
+            </figure>
+            <figure>
+              <div class="frame" role="img" aria-label="Lifestyle brand campaign featuring product details"></div>
+              <figcaption>Brands</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="process" class="section reveal" aria-labelledby="process-title">
+        <div class="container process-grid">
+          <div>
+            <h2 id="process-title">An end-to-end experience built on clarity</h2>
+            <p>From first call to final delivery, our process keeps you informed and relaxed so you can stay present in the moment.</p>
+          </div>
+          <ol class="steps">
+            <li>
+              <h3>Discovery call</h3>
+              <p>We confirm availability, talk through locations, styling, and the mood you want to capture.</p>
+            </li>
+            <li>
+              <h3>Planning toolkit</h3>
+              <p>Timeline support, shot lists, and location guidance ensure every detail is covered.</p>
+            </li>
+            <li>
+              <h3>Session day</h3>
+              <p>Intentional prompts and direction create movement-focused portraits that still feel natural.</p>
+            </li>
+            <li>
+              <h3>Delivery & keepsakes</h3>
+              <p>Preview gallery within 48 hours, followed by full delivery with print shop options and albums.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="testimonials" class="section alt reveal" aria-labelledby="testimonials-title">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="testimonials-title">Clients share the experience</h2>
+          </div>
+          <div class="quotes">
+            <figure>
+              <blockquote>
+                “Every moment felt effortless. We forgot the camera was there, and the images look like they belong in a magazine.”
+              </blockquote>
+              <figcaption>— Naledi & Thabo, Wedding</figcaption>
+            </figure>
+            <figure>
+              <blockquote>
+                “From planning to delivery, Laxportraits guided us with so much care. Our family photos finally feel like us.”
+              </blockquote>
+              <figcaption>— The Khumalo Family</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="section reveal" aria-labelledby="faq-title">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="faq-title">Frequently asked questions</h2>
+            <p>Answers to the logistics couples, families, and creative directors ask most before booking.</p>
+          </div>
+          <div class="faq">
+            <article>
+              <h3>How far in advance should we book?</h3>
+              <p>Weddings are typically booked 6–12 months ahead. Lifestyle and branding sessions are available within 2–4 weeks.</p>
+            </article>
+            <article>
+              <h3>Do you travel outside Gauteng?</h3>
+              <p>Yes. Travel across South Africa and neighbouring countries is available with custom packages.</p>
+            </article>
+            <article>
+              <h3>How many photos do we receive?</h3>
+              <p>Weddings include 450–650 images. Lifestyle and branding sessions average 60–120 polished photographs.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="booking" class="section cta-strip reveal" aria-labelledby="booking-title">
+        <div class="container cta-inner">
+          <div>
+            <h2 id="booking-title">Ready to tell your story?</h2>
+            <p>Send through your wedding date or campaign timeline and we will reply with availability within one business day.</p>
+          </div>
+          <div class="cta-actions">
+            <a class="btn primary" href="mailto:hello@laxportraits.com">hello@laxportraits.com</a>
+            <a class="btn ghost" href="https://wa.me/27720000000" rel="noopener">WhatsApp studio</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <a class="brand" href="#hero">Laxportraits</a>
+          <p>Documenting weddings, lifestyle moments, and brand stories with colour-rich, editorial imagery.</p>
+        </div>
+        <div>
+          <h3>Studio hours</h3>
+          <p>Monday to Friday: 09:00 – 17:00<br />Weekend shoots by appointment</p>
+        </div>
+        <div>
+          <h3>Connect</h3>
+          <ul class="footer-links">
+            <li><a href="mailto:hello@laxportraits.com">hello@laxportraits.com</a></li>
+            <li><a href="https://www.instagram.com/laxportraits" rel="noopener">Instagram</a></li>
+            <li><a href="https://www.facebook.com/laxportraits" rel="noopener">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footnote">© <span id="year">2025</span> Laxportraits. All rights reserved.</p>
+    </footer>
+
+    <div class="whatsapp-float" aria-hidden="true">
+      <a href="https://wa.me/27720000000" aria-label="Chat on WhatsApp">
+        <span>WhatsApp studio</span>
+      </a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous" defer></script>
+    <script src="./app.js" defer></script>
+  </body>
 </html>
