@@ -198,26 +198,17 @@ img {
   gap: 14px;
 }
 
-.frame {
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  border-radius: 20px;
-  background: linear-gradient(140deg, rgba(255, 122, 63, 0.9), rgba(255, 122, 63, 0.25)), url("https://images.unsplash.com/photo-1520854221050-0f4caff449fb?auto=format&fit=crop&w=900&q=80") center / cover;
-  box-shadow: 0 26px 50px rgba(0, 0, 0, 0.45);
-  position: relative;
-  overflow: hidden;
-}
-
-.frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(8, 8, 8, 0) 0%, rgba(8, 8, 8, 0.6) 100%);
-}
-
 .hero-media figcaption {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.hero-media img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 26px 50px rgba(0, 0, 0, 0.45);
 }
 
 .section {
@@ -273,6 +264,14 @@ img {
   margin: 0;
   display: grid;
   gap: 12px;
+}
+
+.gallery img {
+  width: 100%;
+  border-radius: 20px;
+  object-fit: cover;
+  aspect-ratio: 4 / 5;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
 }
 
 .gallery figcaption {
@@ -358,23 +357,72 @@ img {
   background: rgba(255, 255, 255, 0.02);
 }
 
-.cta-strip {
+.cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.contact-section {
   background: linear-gradient(120deg, rgba(255, 122, 63, 0.16), rgba(255, 122, 63, 0.08));
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.cta-inner {
+.contact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 28px;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 36px;
+  align-items: start;
 }
 
-.cta-actions {
-  display: flex;
-  flex-wrap: wrap;
+.contact-intro {
+  display: grid;
+  gap: 20px;
+}
+
+.contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.contact-list li {
+  display: grid;
+  gap: 4px;
+}
+
+.contact-list span {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.service-area {
+  margin: 0;
+  color: var(--muted);
+}
+
+.contact-map {
+  display: grid;
   gap: 14px;
+}
+
+.contact-map iframe {
+  width: 100%;
+  min-height: 280px;
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.map-note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .site-footer {

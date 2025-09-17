@@ -6,23 +6,8 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://www.laxportraits.com/#services</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://www.laxportraits.com/#portfolio</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://www.laxportraits.com/#process</loc>
-    <priority>0.6</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://www.laxportraits.com/#faq</loc>
-    <priority>0.5</priority>
+    <loc>https://www.laxportraits.com/contact.html</loc>
+    <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
 </urlset>
