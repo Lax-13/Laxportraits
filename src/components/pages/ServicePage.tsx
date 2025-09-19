@@ -1,28 +1,90 @@
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { services, ServiceSlug } from '../../content/services';
+import { locations, LocationDetail } from '../../content/locations';
 
 const findService = (slug: string | undefined) =>
   services.find((service) => service.slug === (slug as ServiceSlug));
 
+const findLocation = (slug: string | undefined): LocationDetail | undefined =>
+  locations.find((location) => location.slug === slug);
+
+const formatPrice = (price: string): { amount?: number; currency: string } => {
+  const match = price.match(/R\s?([\d\s]+)/i);
+  if (!match) {
+    return { currency: 'ZAR' };
+  }
+  const numeric = Number(match[1].replace(/\s/g, ''));
+  if (Number.isNaN(numeric)) {
+    return { currency: 'ZAR' };
+  }
+  return { amount: numeric, currency: 'ZAR' };
+};
+
+const defaultAreaServed = locations.map((location) => ({ '@type': 'City', name: location.name }));
+
 export const ServicePage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, location: locationSlug } = useParams<{ slug: string; location?: string }>();
   const service = findService(slug);
+  const location = findLocation(locationSlug);
 
   if (!service) {
     return <Navigate to="/" replace />;
   }
 
+  const canonical = location ? `${service.canonical}/${location.slug}` : service.canonical;
+  const locationHighlight = location?.serviceHighlights[service.slug];
+  const metaDescription = location
+    ? `${service.name} photography in ${location.name}. ${locationHighlight ?? location.summary}`.slice(0, 158)
+    : service.metaDescription;
+
+  const offers = service.packages
+    .map((pkg) => {
+      const { amount, currency } = formatPrice(pkg.price);
+      if (typeof amount === 'undefined') {
+        return undefined;
+      }
+      return {
+        '@type': 'Offer',
+        name: pkg.title,
+        priceCurrency: currency,
+        price: amount,
+        availability: 'https://schema.org/InStock',
+        url: canonical,
+      };
+    })
+    .filter(Boolean);
+
+  const serviceStructuredData: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: `${service.name} by Laxportraits`,
+    serviceType: service.name,
+    provider: {
+      '@id': 'https://www.laxportraits.com/#business',
+    },
+    description: location ? `${service.name} services in ${location.name}. ${location.summary}` : service.description,
+    url: canonical,
+    areaServed: location ? { '@type': 'City', name: location.name } : defaultAreaServed,
+  };
+
+  if (offers.length) {
+    serviceStructuredData.offers = offers;
+  }
+
+  const locationLinks = locations.filter((loc) => loc.slug !== location?.slug);
+
   return (
     <>
       <Helmet>
-        <title>{`${service.name} | Laxportraits`}</title>
-        <link rel="canonical" href={service.canonical} />
-        <meta name="description" content={service.metaDescription} />
-        <meta property="og:title" content={`${service.name} | Laxportraits`} />
-        <meta property="og:description" content={service.metaDescription} />
-        <meta property="og:url" content={service.canonical} />
+        <title>{`${service.name}${location ? ` in ${location.name}` : ''} | Laxportraits`}</title>
+        <link rel="canonical" href={canonical} />
+        <meta name="description" content={metaDescription} />
+        <meta property="og:title" content={`${service.name}${location ? ` in ${location.name}` : ''} | Laxportraits`} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonical} />
         <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify(serviceStructuredData)}</script>
       </Helmet>
       <main id="main" className="bg-white text-gray-900">
         <section className="relative overflow-hidden">
@@ -41,23 +103,73 @@ export const ServicePage = () => {
             <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight drop-shadow-[0_8px_26px_rgba(0,0,0,0.45)]">
               {service.headline}
             </h1>
-            <p className="mt-6 max-w-3xl text-lg sm:text-xl text-white/85 leading-relaxed">{service.subheadline}</p>
+            <p className="mt-6 max-w-3xl text-lg sm:text-xl text-white/85 leading-relaxed">
+              {location ? locationHighlight ?? location.summary : service.subheadline}
+            </p>
             <div className="mt-10 flex flex-wrap gap-3">
+              {location ? (
+                <span className="inline-flex items-center rounded-full border border-white/40 px-4 py-2 text-sm uppercase tracking-[0.25em] text-white/80 backdrop-blur-md">
+                  Serving {location.name}
+                </span>
+              ) : null}
               <a
                 className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-gray-900 font-semibold shadow-[0_20px_40px_rgba(255,122,63,0.25)] transition hover:shadow-[0_12px_30px_rgba(255,122,63,0.3)]"
                 href="#contact"
               >
                 Check availability
               </a>
-              <a
+              <Link
                 className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-white backdrop-blur-md transition hover:border-white/70"
-                href="/"
+                to="/"
               >
                 Back to overview
-              </a>
+              </Link>
             </div>
           </div>
         </section>
+
+        {location ? (
+          <section className="bg-neutral-50 py-16 sm:py-20">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-start">
+              <div className="space-y-5 text-base sm:text-lg text-gray-700 leading-relaxed">
+                <h2 className="text-3xl font-extrabold text-gray-900">
+                  {service.name} in {location.name}
+                </h2>
+                <p>{location.summary}</p>
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-gray-500">Neighbourhood focus</h3>
+                  <ul className="mt-3 flex flex-wrap gap-2 text-sm text-gray-700">
+                    {location.neighbourhoods.map((neighbourhood) => (
+                      <li
+                        key={neighbourhood}
+                        className="rounded-full border border-gray-300 bg-white px-3 py-1"
+                      >
+                        {neighbourhood}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <aside className="space-y-5">
+                <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_12px_30px_rgba(0,0,0,0.05)]">
+                  <h3 className="text-lg font-semibold text-gray-900">Venue inspiration</h3>
+                  <ul className="mt-4 space-y-3 text-sm text-gray-700">
+                    {location.venueIdeas.map((idea) => (
+                      <li key={idea.name}>
+                        <p className="font-semibold text-gray-900">{idea.name}</p>
+                        <p className="text-gray-600">{idea.note}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_12px_30px_rgba(0,0,0,0.05)]">
+                  <h3 className="text-lg font-semibold text-gray-900">Availability note</h3>
+                  <p className="mt-3 text-sm text-gray-700 leading-relaxed">{location.availabilityNote}</p>
+                </div>
+              </aside>
+            </div>
+          </section>
+        ) : null}
 
         <section className="py-16 sm:py-24 bg-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] items-start">
@@ -141,7 +253,7 @@ export const ServicePage = () => {
           </div>
         </section>
 
-        <section id="contact" className="bg-neutral-950 py-16 sm:py-20 text-white">
+        <section className="bg-neutral-950 py-16 sm:py-20 text-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Ready to plan your {service.name.toLowerCase()}?</h2>
             <p className="mt-4 text-white/80 text-lg max-w-2xl mx-auto">
@@ -168,6 +280,34 @@ export const ServicePage = () => {
               >
                 Call +27 72 000 0000
               </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white py-16 sm:py-20">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-semibold text-gray-900">Popular areas we cover</h2>
+            <p className="mt-2 text-gray-600 text-sm sm:text-base">
+              Explore location-specific guides to see how the studio tailors {service.name.toLowerCase()} across Gauteng.
+            </p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(location ? [location, ...locationLinks] : locations).map((loc) => (
+                <Link
+                  key={loc.slug}
+                  to={`/services/${service.slug}/${loc.slug}`}
+                  className={`rounded-3xl border p-5 transition hover:border-gray-900 hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] ${
+                    location?.slug === loc.slug ? 'border-gray-900 bg-neutral-50' : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <h3 className="text-lg font-semibold text-gray-900">{loc.name}</h3>
+                  <p className="mt-2 text-sm text-gray-600">
+                    {loc.serviceHighlights[service.slug] ?? loc.summary}
+                  </p>
+                  <span className="mt-4 inline-flex items-center text-sm font-semibold text-gray-900">
+                    View details →
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
         </section>

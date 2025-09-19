@@ -38,6 +38,7 @@ function App() {
       <Routes>
         <Route path="/" element={content} />
         <Route path="/services/:slug" element={<ServicePage />} />
+        <Route path="/services/:slug/:location" element={<ServicePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
