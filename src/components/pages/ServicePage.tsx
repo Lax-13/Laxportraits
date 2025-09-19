@@ -2,7 +2,9 @@ import { Navigate, useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { services, ServiceSlug } from '../../content/services';
 import { locations, LocationDetail } from '../../content/locations';
+import { getAvailabilityForService } from '../../content/availability';
 import { ContactForm } from '../generated/ContactForm';
+import { DiscoveryCallBanner } from '../common/DiscoveryCallBanner';
 
 const findService = (slug: string | undefined) =>
   services.find((service) => service.slug === (slug as ServiceSlug));
@@ -33,6 +35,7 @@ export const ServicePage = () => {
     return <Navigate to="/" replace />;
   }
 
+  const availabilityRecord = getAvailabilityForService(service.slug);
   const canonical = location ? `${service.canonical}/${location.slug}` : service.canonical;
   const locationHighlight = location?.serviceHighlights[service.slug];
   const metaDescription = location
@@ -108,6 +111,12 @@ export const ServicePage = () => {
             <p className="mt-6 max-w-3xl text-lg sm:text-xl text-white/85 leading-relaxed">
               {location ? locationHighlight ?? location.summary : service.subheadline}
             </p>
+            {availabilityRecord ? (
+              <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/80 backdrop-blur-sm">
+                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
+                {availabilityRecord.message}
+              </p>
+            ) : null}
             <div className="mt-10 flex flex-wrap gap-3">
               {location ? (
                 <span className="inline-flex items-center rounded-full border border-white/40 px-4 py-2 text-sm uppercase tracking-[0.25em] text-white/80 backdrop-blur-md">
@@ -274,17 +283,21 @@ export const ServicePage = () => {
           </div>
         </section>
 
+        <DiscoveryCallBanner
+          heading={service ? `Start planning your ${service.name.toLowerCase()}` : undefined}
+          description={
+            location
+              ? locationHighlight ?? location.summary
+              : 'Use the calendar to secure a 20-minute discovery call. We can talk through timelines, budgets, and creative direction before the full proposal.'
+          }
+        />
         <ContactForm
           id="lead-form"
           tone="dark"
-          title={`Plan your ${service.name.toLowerCase()}`}
-          subtitle={
-            location
-              ? locationHighlight ?? location.summary
-              : 'Share your timeline, location, and creative goals. We respond within one business day with a tailored plan.'
-          }
           prefillService={service.slug}
           prefillLocation={location?.name}
+          title="Let’s tell your story next"
+          subtitle="Answer a few quick questions and we’ll handle the timeline, lighting plan, and direction."
         />
 
         <section className="bg-white py-16 sm:py-20">

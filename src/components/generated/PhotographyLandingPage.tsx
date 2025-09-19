@@ -7,10 +7,12 @@ import { ServicesSection } from './ServicesSection';
 import { ExperienceSection } from './ExperienceSection';
 import { FaqSection } from './FaqSection';
 import { ContactForm } from './ContactForm';
+import { getAvailabilityForService } from '../../content/availability';
 
 // @component: PhotographyLandingPage
 export const PhotographyLandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const weddingsAvailability = getAvailabilityForService('weddings-and-elopements');
   const navigationItems = [{
     label: 'Home',
     href: '#home'
@@ -112,7 +114,10 @@ export const PhotographyLandingPage = () => {
                 <div className="p-6 md:p-8 h-full flex flex-col justify-between">
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2"><span>Availability</span></h3>
-                    <p className="text-gray-600"><span>Booking limited 2025 dates for weddings and brand work.</span></p>
+                    <p className="text-gray-600"><span>{weddingsAvailability ? weddingsAvailability.message : 'Booking limited 2025 dates for weddings and brand work.'}</span></p>
+                    {weddingsAvailability?.seasonalNote ? (
+                      <p className="mt-2 text-sm text-gray-500"><span>{weddingsAvailability.seasonalNote}</span></p>
+                    ) : null}
                   </div>
                   <div className="mt-6 grid grid-cols-3 gap-2" aria-hidden="true">
                     <div className="h-2 rounded-full bg-gray-900/80"></div>
