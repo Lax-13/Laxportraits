@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Calendar,
@@ -64,6 +64,8 @@ const contactPrefText: Record<ContactPreference, string> = {
   whatsapp: 'Reply on WhatsApp',
 };
 
+const STORAGE_KEY = 'laxportraits_lead_form_v1';
+
 const stepOrder = ['intro', 'project', 'details', 'review'] as const;
 type StepId = (typeof stepOrder)[number];
 
@@ -118,6 +120,12 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [honeypot, setHoneypot] = useState('');
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const serviceButtonsRef = useRef<HTMLButtonElement[]>([]);
+  const locationButtonsRef = useRef<HTMLButtonElement[]>([]);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
 
   useEffect(() => {
     setFormState((prev) => ({
@@ -127,6 +135,37 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialService, initialLocation]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<FormState>;
+        setFormState((prev) => ({
+          ...prev,
+          ...parsed,
+          service: initialService || (parsed.service as ServiceSlug | '') || prev.service,
+          location: initialLocation || parsed.location || prev.location,
+        }));
+      }
+    } catch (error) {
+      console.warn('Unable to restore saved enquiry', error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || status === 'success') return;
+    const id = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+      } catch (error) {
+        console.warn('Unable to persist enquiry draft', error);
+      }
+    }, 400);
+    return () => window.clearTimeout(id);
+  }, [formState, status]);
 
   const stepIndex = stepOrder.indexOf(currentStep);
   const progress = ((stepIndex + 1) / stepOrder.length) * 100;
@@ -153,6 +192,29 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         nextErrors.message = 'Tell us a little more so we can prep a tailored response (min 20 characters).';
     }
     setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      requestAnimationFrame(() => {
+        if (nextErrors.name) {
+          nameRef.current?.focus();
+          return;
+        }
+        if (nextErrors.email) {
+          emailRef.current?.focus();
+          return;
+        }
+        if (nextErrors.service) {
+          serviceButtonsRef.current[0]?.focus();
+          return;
+        }
+        if (nextErrors.location) {
+          locationButtonsRef.current[0]?.focus();
+          return;
+        }
+        if (nextErrors.message) {
+          messageRef.current?.focus();
+        }
+      });
+    }
     return Object.keys(nextErrors).length === 0;
   };
 
@@ -225,6 +287,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     setCurrentStep('intro');
     setErrors({});
     setStatus('idle');
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
   };
 
   const toneClasses = tone === 'dark'
@@ -250,6 +315,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     ? locations.find((loc) => loc.slug === formState.location)
     : undefined;
   const locationCaseStudies = currentLocation?.caseStudies?.[formState.service || ''] ?? [];
+
+  serviceButtonsRef.current = [];
+  locationButtonsRef.current = [];
 
   return (
     <section id={id} className={`py-20 ${toneClasses.section}`}>
@@ -437,7 +505,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                     <div>
                       <label className="text-sm font-semibold">Which service are you interested in?</label>
                       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        {services.map((svc) => (
+                        {services.map((svc, index) => (
                           <button
                             type="button"
                             key={svc.slug}
@@ -447,6 +515,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                                 ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white/10 dark:text-white'
                                 : 'border-black/10 bg-transparent dark:border-white/20'
                             }`}
+                            ref={(element) => {
+                              if (element) serviceButtonsRef.current[index] = element;
+                            }}
                           >
                             {svc.name}
                           </button>
@@ -457,7 +528,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                     <div>
                       <label className="text-sm font-semibold">Primary location</label>
                       <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                        {locations.map((loc) => (
+                        {locations.map((loc, index) => (
                           <button
                             type="button"
                             key={loc.slug}
@@ -467,6 +538,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                                 ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white/10 dark:text-white'
                                 : 'border-black/10 bg-transparent dark:border-white/20'
                             }`}
+                            ref={(element) => {
+                              if (element) locationButtonsRef.current[index] = element;
+                            }}
                           >
                             {loc.name}
                           </button>
@@ -551,6 +625,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                         className={`mt-2 w-full rounded-xl px-4 py-3 transition focus:ring-2 resize-none ${toneClasses.input} ${
                           errors.message ? 'border-red-400 focus:ring-red-300' : ''
                         }`}
+                        ref={messageRef}
                         required
                       />
                       {errors.message ? <p className="mt-1 text-xs text-red-500">{errors.message}</p> : null}
@@ -659,6 +734,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
+                  role="status"
+                  aria-live="polite"
                   className={`mt-6 rounded-3xl border p-6 ${toneClasses.card}`}
                 >
                   <h3 className="text-xl font-semibold flex items-center gap-2">
@@ -675,6 +752,14 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                       className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600"
                     >
                       <MessageCircle className="h-4 w-4" /> Continue on WhatsApp
+                    </a>
+                    <a
+                      href="https://calendly.com/laxportraits/discovery-call"
+                      rel="noopener"
+                      target="_blank"
+                      className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-current transition hover:bg-black/5 dark:hover:bg-white/10"
+                    >
+                      <Calendar className="h-4 w-4" /> Schedule discovery call
                     </a>
                     <a
                       href="tel:+27720000000"
@@ -694,7 +779,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
               ) : (
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className={`text-xs uppercase tracking-[0.28em] ${toneClasses.subText}`}>
-                    <span>Secure lead form · data encrypted in transit</span>
+                    <span>Progress auto-saves locally · data encrypted in transit</span>
                   </div>
                   <div className="flex items-center gap-2">
                     {currentStep !== 'intro' && currentStep !== 'review' && (
@@ -729,7 +814,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
               )}
 
               {status === 'error' ? (
-                <p className="mt-3 text-sm text-red-500">
+                <p className="mt-3 text-sm text-red-500" aria-live="assertive">
                   Something went wrong while sending your message. Please email hello@laxportraits.com and we’ll respond as
                   soon as possible.
                 </p>
