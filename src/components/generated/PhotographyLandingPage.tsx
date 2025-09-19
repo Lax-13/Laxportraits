@@ -28,7 +28,7 @@ export const PhotographyLandingPage = () => {
     href: '#faq'
   }, {
     label: 'Contact',
-    href: '#contact'
+    href: '#lead-form'
   }] as any[];
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -53,7 +53,7 @@ export const PhotographyLandingPage = () => {
               {navigationItems.map(item => <button key={item.href} onClick={() => scrollToSection(item.href)} className="relative px-4 py-2 text-sm font-medium text-gray-800 rounded-full hover:bg-black/5 transition-colors after:absolute after:left-4 after:bottom-1 after:h-0.5 after:w-0 after:bg-gray-900 after:transition-[width] after:duration-300 hover:after:w-[calc(100%-2rem)]">
                   {item.label}
                 </button>)}
-              <button onClick={() => scrollToSection('#contact')} className="ml-2 px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-black">
+              <button onClick={() => scrollToSection('#lead-form')} className="ml-2 px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-black">
                 <span>Check availability</span>
               </button>
             </div>
@@ -167,13 +167,11 @@ export const PhotographyLandingPage = () => {
           <FaqSection />
         </section>
 
-        <section id="contact">
-          <ContactForm />
-        </section>
+        <ContactForm id="lead-form" tone="dark" />
       </main>
 
       {/* WhatsApp float */}
-      <a aria-label="WhatsApp" href="#contact" className="fixed bottom-6 right-4 md:right-6 z-40 rounded-full bg-green-500 text-white p-4 shadow-xl hover:bg-green-600 transition-colors animate-bounce-slow">
+      <a aria-label="WhatsApp" href="#lead-form" className="fixed bottom-6 right-4 md:right-6 z-40 rounded-full bg-green-500 text-white p-4 shadow-xl hover:bg-green-600 transition-colors animate-bounce-slow">
         <MessageCircle className="h-6 w-6" />
       </a>
 

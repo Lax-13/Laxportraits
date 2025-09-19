@@ -1,224 +1,732 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Instagram, Facebook } from 'lucide-react';
-const testimonials = [{
-  id: 'test1',
-  name: 'Naledi & Thabo',
-  text: 'Every moment felt effortless. We forgot the camera was there, and the images look like they belong in a magazine.',
-  rating: 5
-}, {
-  id: 'test2',
-  name: 'The Khumalo Family',
-  text: 'From planning to delivery, the studio guided us with so much care. Our family photos finally feel like us.',
-  rating: 5
-}, {
-  id: 'test3',
-  name: 'Nthabiseng M.',
-  text: 'Professional, organised, and warm. Our campaign visuals were exactly what the brand needed.',
-  rating: 5
-}] as any[];
+import React, { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Calendar,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Mail,
+  MessageCircle,
+  Phone,
+  Send,
+  Sparkles,
+} from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { services, ServiceSlug } from '../../content/services';
+import { locations } from '../../content/locations';
 
-// @component: ContactForm
-export const ContactForm = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    service: '',
-    message: ''
+interface ContactFormProps {
+  id?: string;
+  tone?: 'light' | 'dark';
+  title?: string;
+  subtitle?: string;
+  prefillService?: ServiceSlug;
+  prefillLocation?: string;
+}
+
+type ContactPreference = 'email' | 'phone' | 'whatsapp';
+
+type FormState = {
+  name: string;
+  email: string;
+  phone: string;
+  service: ServiceSlug | '';
+  location: string;
+  eventDate: string;
+  budget: string;
+  hearAbout: string;
+  contactPreference: ContactPreference;
+  message: string;
+  newsletter: boolean;
+};
+
+const defaultFormState: FormState = {
+  name: '',
+  email: '',
+  phone: '',
+  service: '',
+  location: '',
+  eventDate: '',
+  budget: '',
+  hearAbout: '',
+  contactPreference: 'email',
+  message: '',
+  newsletter: false,
+};
+
+const budgetOptions = ['Under R5 000', 'R5 000 – R10 000', 'R10 000 – R20 000', 'R20 000+', 'Still exploring'];
+const hearAboutOptions = ['Instagram', 'Google search', 'Friend or planner referral', 'Vendor partner', 'Other'];
+
+const contactPrefText: Record<ContactPreference, string> = {
+  email: 'Email me back',
+  phone: 'Give me a call',
+  whatsapp: 'Reply on WhatsApp',
+};
+
+const stepOrder = ['intro', 'project', 'details', 'review'] as const;
+type StepId = (typeof stepOrder)[number];
+
+const stepTitles: Record<StepId, string> = {
+  intro: 'Let’s get acquainted',
+  project: 'Project vision',
+  details: 'Timeline & logistics',
+  review: 'Review & send',
+};
+
+const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const findLocationSlug = (value?: string) => {
+  if (!value) return '';
+  const normalised = value.trim().toLowerCase();
+  const location = locations.find(
+    (loc) => loc.slug.toLowerCase() === normalised || loc.name.toLowerCase() === normalised,
+  );
+  return location ? location.slug : '';
+};
+
+export const ContactForm: React.FC<ContactFormProps> = ({
+  id = 'lead-form',
+  tone = 'light',
+  title = 'Let’s plan your session',
+  subtitle = 'Share a few details and we’ll respond within one business day with availability and next steps.',
+  prefillService,
+  prefillLocation,
+}) => {
+  const [searchParams] = useSearchParams();
+  const queryService = searchParams.get('service') as ServiceSlug | null;
+  const queryLocation = searchParams.get('location');
+
+  const initialService = useMemo(() => {
+    if (prefillService) return prefillService;
+    if (queryService && services.some((svc) => svc.slug === queryService)) return queryService;
+    return '';
+  }, [prefillService, queryService]);
+
+  const initialLocation = useMemo(() => {
+    if (prefillLocation) return findLocationSlug(prefillLocation);
+    if (queryLocation) return findLocationSlug(queryLocation);
+    return '';
+  }, [prefillLocation, queryLocation]);
+
+  const [formState, setFormState] = useState<FormState>({
+    ...defaultFormState,
+    service: initialService,
+    location: initialLocation,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [touched, setTouched] = useState<{
-    [k: string]: boolean;
-  }>({});
-  const [submitted, setSubmitted] = useState(false);
-  const errors = {
-    name: formData.name.trim().length < 2 ? 'Please enter your full name' : '',
-    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? '' : 'Enter a valid email address',
-    service: formData.service ? '' : 'Please select a service',
-    message: formData.message.trim().length < 10 ? 'Tell me a little more (min 10 characters)' : ''
-  } as const;
-  const isValid = !errors.name && !errors.email && !errors.service && !errors.message;
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-    if (!isValid) return;
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1800));
-    setIsSubmitting(false);
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      service: '',
-      message: ''
-    });
-    setTouched({});
-  };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setTouched({
-      ...touched,
-      [e.target.name]: true
-    });
+  const [currentStep, setCurrentStep] = useState<StepId>('intro');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [honeypot, setHoneypot] = useState('');
+
+  useEffect(() => {
+    setFormState((prev) => ({
+      ...prev,
+      service: initialService || prev.service,
+      location: initialLocation || prev.location,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialService, initialLocation]);
+
+  const stepIndex = stepOrder.indexOf(currentStep);
+  const progress = ((stepIndex + 1) / stepOrder.length) * 100;
+
+  const updateField = (field: keyof FormState, value: string | boolean) => {
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  // @return
-  return <section className="py-20 bg-gray-50">
+  const validateStep = (step: StepId) => {
+    const nextErrors: Record<string, string> = {};
+    if (step === 'intro') {
+      if (formState.name.trim().length < 2) nextErrors.name = 'Please share your full name.';
+      if (!isEmail(formState.email)) nextErrors.email = 'Enter a valid email address.';
+    }
+    if (step === 'project') {
+      if (!formState.service) nextErrors.service = 'Select the service you are interested in.';
+      if (!formState.location) nextErrors.location = 'Choose the primary location.';
+    }
+    if (step === 'details') {
+      if (!formState.message || formState.message.trim().length < 20)
+        nextErrors.message = 'Tell us a little more so we can prep a tailored response (min 20 characters).';
+    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const goToStep = (step: StepId) => {
+    setErrors({});
+    setCurrentStep(step);
+  };
+
+  const handleNext = () => {
+    if (!validateStep(currentStep)) return;
+    const nextIndex = Math.min(stepOrder.length - 1, stepIndex + 1);
+    setCurrentStep(stepOrder[nextIndex]);
+  };
+
+  const handlePrev = () => {
+    const prevIndex = Math.max(0, stepIndex - 1);
+    setCurrentStep(stepOrder[prevIndex]);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (honeypot) {
+      return;
+    }
+    if (!validateStep('details')) {
+      setCurrentStep('details');
+      return;
+    }
+    setStatus('submitting');
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1400));
+      setStatus('success');
+      if (typeof window !== 'undefined') {
+        (window as any).dataLayer = (window as any).dataLayer || [];
+        (window as any).dataLayer.push({
+          event: 'lead_submit',
+          lead_context: formState.service || 'general',
+          lead_location: formState.location || 'unspecified',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+    }
+  };
+
+  const resetForm = () => {
+    setFormState({
+      ...defaultFormState,
+      service: initialService,
+      location: initialLocation,
+    });
+    setCurrentStep('intro');
+    setErrors({});
+    setStatus('idle');
+  };
+
+  const toneClasses = tone === 'dark'
+    ? {
+        section: 'bg-neutral-950 text-white',
+        card: 'bg-neutral-900 border-neutral-800',
+        input: 'bg-neutral-900 border-neutral-700 text-white placeholder:text-neutral-400 focus:ring-neutral-200',
+        subText: 'text-neutral-300',
+        accent: 'bg-white text-neutral-900',
+      }
+    : {
+        section: 'bg-gray-50 text-gray-900',
+        card: 'bg-white border-gray-200',
+        input: 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-gray-900',
+        subText: 'text-gray-600',
+        accent: 'bg-gray-900 text-white',
+      };
+
+  const currentService = formState.service
+    ? services.find((svc) => svc.slug === formState.service)
+    : undefined;
+  const currentLocation = formState.location
+    ? locations.find((loc) => loc.slug === formState.location)
+    : undefined;
+  const locationCaseStudies = currentLocation?.caseStudies?.[formState.service || ''] ?? [];
+
+  return (
+    <section id={id} className={`py-20 ${toneClasses.section}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          <motion.div initial={{
-          opacity: 0,
-          x: -30
-        }} whileInView={{
-          opacity: 1,
-          x: 0
-        }} transition={{
-          duration: 0.8
-        }} viewport={{
-          once: true
-        }}>
-            <div className="mb-12" id="about">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"><span>About the studio</span></h2>
-              <div className="prose prose-lg text-gray-600">
-                <p>
-                  <span>
-                    Laxportraits is an editorial photography studio led by Lax Ndlovu. We balance intentional direction with
-                    relaxed prompts so every frame feels like your story—refined, colourful, and full of movement.
-                  </span>
-                </p>
-                <p>
-                  <span>
-                    Working across Gauteng and travelling nationwide, the studio supports you from timeline planning to
-                    final print delivery, ensuring a calm, well-prepared experience at every step.
-                  </span>
-                </p>
-              </div>
-            </div>
-            
-            <div className="mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6"><span>What Clients Say</span></h3>
-              <div className="space-y-6">
-                {testimonials.map((testimonial, index) => <motion.div key={testimonial.id} initial={{
-                opacity: 0,
-                y: 20
-              }} whileInView={{
-                opacity: 1,
-                y: 0
-              }} transition={{
-                duration: 0.6,
-                delay: index * 0.1
-              }} viewport={{
-                once: true
-              }} className="p-6 bg-white rounded-xl shadow-md">
-                    <div className="flex mb-2">{Array.from({
-                    length: testimonial.rating
-                  }).map((_, i) => <span key={i} className="text-yellow-400">★</span>)}</div>
-                    <p className="text-gray-700 mb-3"><span>"{testimonial.text}"</span></p>
-                    <p className="font-semibold text-gray-900"><span>- {testimonial.name}</span></p>
-                  </motion.div>)}
-              </div>
-            </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-16 items-start">
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="space-y-12"
+          >
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gray-600" />
-                <a href="mailto:hello@laxportraits.com" className="text-gray-700 hover:text-gray-900">hello@laxportraits.com</a>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-gray-600" />
-                <a href="tel:+27720000000" className="text-gray-700 hover:text-gray-900">+27 72 000 0000</a>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-gray-600" />
-                <span className="text-gray-700">Johannesburg, Gauteng · Travel available nationwide</span>
-              </div>
-              <p className="text-gray-600 text-sm">
-                <span>Serving Johannesburg, Pretoria, Sandton, Midrand, Centurion, Soweto, and the wider Gauteng region.</span>
+              <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.36em] text-current/60">
+                <Sparkles className="h-3 w-3" /> Start the conversation
               </p>
-              <div className="flex items-center space-x-4 pt-4">
-                <a
-                  href="https://www.instagram.com/laxportraits"
-                  target="_blank"
-                  rel="noopener"
-                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-300"
-                >
-                  <Instagram className="h-5 w-5" />
-                  <span>Instagram</span>
-                </a>
-                <a
-                  href="https://www.facebook.com/laxportraits"
-                  target="_blank"
-                  rel="noopener"
-                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-300"
-                >
-                  <Facebook className="h-5 w-5" />
-                  <span>Facebook</span>
-                </a>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-current">{title}</h2>
+              <p className={`max-w-2xl text-base md:text-lg ${toneClasses.subText}`}>{subtitle}</p>
+            </div>
+
+            {currentService ? (
+              <div className={`rounded-3xl border p-6 ${toneClasses.card}`}>
+                <h3 className="text-lg font-semibold">You’re enquiring about</h3>
+                <p className={`mt-2 text-sm ${toneClasses.subText}`}>
+                  {currentService.name}
+                  {currentLocation ? ` · ${currentLocation.name}` : ''}
+                </p>
+                <p className={`mt-3 text-sm ${toneClasses.subText}`}>
+                  Need to change? You can edit the service or location on the next step.
+                </p>
+              </div>
+            ) : null}
+
+            {locationCaseStudies.length ? (
+              <div className={`rounded-3xl border p-6 ${toneClasses.card}`}>
+                <h3 className="text-lg font-semibold">Recent highlights nearby</h3>
+                <ul className={`mt-4 space-y-3 text-sm ${toneClasses.subText}`}>
+                  {locationCaseStudies.map((story) => (
+                    <li key={`${story.title}-${story.link}`}>
+                      <p className="font-semibold text-current">{story.title}</p>
+                      <p className="mt-1">{story.summary}</p>
+                      <a
+                        href={story.link}
+                        className="mt-2 inline-flex items-center text-xs font-semibold uppercase tracking-[0.3em] underline-offset-4 hover:underline"
+                      >
+                        View highlights →
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <div className="space-y-6">
+              <div className={`rounded-3xl border p-6 ${toneClasses.card}`}>
+                <h3 className="text-lg font-semibold">Studio hours</h3>
+                <p className={`mt-2 text-sm ${toneClasses.subText}`}>
+                  Monday to Friday · 09:00 – 17:00<br />
+                  Weekend shoots by appointment
+                </p>
+              </div>
+              <div className={`rounded-3xl border p-6 ${toneClasses.card}`}>
+                <h3 className="text-lg font-semibold">Connect directly</h3>
+                <ul className={`mt-3 space-y-2 text-sm ${toneClasses.subText}`}>
+                  <li className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    <a href="mailto:hello@laxportraits.com" className="underline-offset-4 hover:underline">
+                      hello@laxportraits.com
+                    </a>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    <a href="tel:+27720000000" className="underline-offset-4 hover:underline">
+                      +27 72 000 0000
+                    </a>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    <a href="https://wa.me/27720000000" rel="noopener" className="underline-offset-4 hover:underline">
+                      WhatsApp the studio
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
           </motion.div>
 
-          <motion.div initial={{
-          opacity: 0,
-          x: 30
-        }} whileInView={{
-          opacity: 1,
-          x: 0
-        }} transition={{
-          duration: 0.8
-        }} viewport={{
-          once: true
-        }} className="bg-white p-8 rounded-2xl shadow-xl">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8"><span>Let's Work Together</span></h3>
-            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="sr-only"><span>Name</span></label>
-                  <input id="name" type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} onBlur={handleBlur} aria-invalid={(touched.name || submitted) && !!errors.name} aria-describedby="name-error" className={`w-full px-4 py-3 rounded-xl transition-all duration-300 border ${(touched.name || submitted) && errors.name ? 'border-red-300 focus:ring-2 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent'}`} required />
-                  {(touched.name || submitted) && errors.name ? <p id="name-error" className="mt-2 text-sm text-red-600"><span>{errors.name}</span></p> : <p className="mt-2 h-0 text-sm opacity-0"><span>&nbsp;</span></p>}
-                </div>
-                <div>
-                  <label htmlFor="email" className="sr-only"><span>Email</span></label>
-                  <input id="email" type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} onBlur={handleBlur} aria-invalid={(touched.email || submitted) && !!errors.email} aria-describedby="email-error" className={`w-full px-4 py-3 rounded-xl transition-all duration-300 border ${(touched.email || submitted) && errors.email ? 'border-red-300 focus:ring-2 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent'}`} required />
-                  {(touched.email || submitted) && errors.email ? <p id="email-error" className="mt-2 text-sm text-red-600"><span>{errors.email}</span></p> : <p className="mt-2 h-0 text-sm opacity-0"><span>&nbsp;</span></p>}
-                </div>
+          <div className={`rounded-3xl border p-6 sm:p-8 ${toneClasses.card}`}>
+            <div className="mb-6">
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.3em]">
+                <span>Step {stepIndex + 1} of {stepOrder.length}</span>
+                <span>{stepTitles[currentStep]}</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="phone" className="sr-only"><span>Phone</span></label>
-                  <input id="phone" type="tel" name="phone" placeholder="Phone Number (optional)" value={formData.phone} onChange={handleChange} onBlur={handleBlur} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-300" />
-                </div>
-                <div>
-                  <label htmlFor="service" className="sr-only"><span>Service</span></label>
-                  <select id="service" name="service" value={formData.service} onChange={handleChange} onBlur={handleBlur} aria-invalid={(touched.service || submitted) && !!errors.service} aria-describedby="service-error" className={`w-full px-4 py-3 rounded-xl transition-all duration-300 border ${(touched.service || submitted) && errors.service ? 'border-red-300 focus:ring-2 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent'}`} required>
-                    <option value="">Select Service</option>
-                    <option value="wedding">Wedding celebration</option>
-                    <option value="lifestyle">Lifestyle session</option>
-                    <option value="family">Family milestone</option>
-                    <option value="campaign">Brand or campaign</option>
-                    <option value="corporate">Corporate event</option>
-                    <option value="other">Other</option>
-                  </select>
-                  {(touched.service || submitted) && errors.service ? <p id="service-error" className="mt-2 text-sm text-red-600"><span>{errors.service}</span></p> : <p className="mt-2 h-0 text-sm opacity-0"><span>&nbsp;</span></p>}
-                </div>
+              <div className="mt-2 h-2 w-full rounded-full bg-black/10 dark:bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gray-900 dark:bg-white transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
-              <div>
-                <label htmlFor="message" className="sr-only"><span>Message</span></label>
-                <textarea id="message" name="message" placeholder="Tell me about your vision..." rows={6} value={formData.message} onChange={handleChange} onBlur={handleBlur} aria-invalid={(touched.message || submitted) && !!errors.message} aria-describedby="message-error" className={`w-full px-4 py-3 rounded-xl transition-all duration-300 resize-none border ${(touched.message || submitted) && errors.message ? 'border-red-300 focus:ring-2 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent'}`} required></textarea>
-                {(touched.message || submitted) && errors.message ? <p id="message-error" className="mt-2 text-sm text-red-600"><span>{errors.message}</span></p> : <p className="mt-2 h-0 text-sm opacity-0"><span>&nbsp;</span></p>}
-              </div>
-              <button type="submit" disabled={isSubmitting || !isValid} className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 disabled:opacity-60 ${isValid ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-200 text-gray-500'}`}>
-                {isSubmitting ? <span>Sending...</span> : <><Send className="h-5 w-5" /><span>Send Message</span></>}
-              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} noValidate>
+              <AnimatePresence mode="wait">
+                {currentStep === 'intro' && (
+                  <motion.div
+                    key="intro"
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.35 }}
+                    className="space-y-5"
+                  >
+                    <div>
+                      <label className="text-sm font-semibold">Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formState.name}
+                        onChange={(event) => updateField('name', event.target.value)}
+                        placeholder="Your full name"
+                        className={`mt-2 w-full rounded-xl px-4 py-3 transition focus:ring-2 ${toneClasses.input} ${
+                          errors.name ? 'border-red-400 focus:ring-red-300' : ''
+                        }`}
+                        required
+                      />
+                      {errors.name ? <p className="mt-1 text-xs text-red-500">{errors.name}</p> : null}
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formState.email}
+                        onChange={(event) => updateField('email', event.target.value)}
+                        placeholder="name@example.com"
+                        className={`mt-2 w-full rounded-xl px-4 py-3 transition focus:ring-2 ${toneClasses.input} ${
+                          errors.email ? 'border-red-400 focus:ring-red-300' : ''
+                        }`}
+                        required
+                      />
+                      {errors.email ? <p className="mt-1 text-xs text-red-500">{errors.email}</p> : null}
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">Phone (optional)</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formState.phone}
+                        onChange={(event) => updateField('phone', event.target.value)}
+                        placeholder="+27 …"
+                        className={`mt-2 w-full rounded-xl px-4 py-3 transition focus:ring-2 ${toneClasses.input}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">Preferred contact channel</label>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        {(Object.keys(contactPrefText) as ContactPreference[]).map((option) => (
+                          <button
+                            type="button"
+                            key={option}
+                            onClick={() => updateField('contactPreference', option)}
+                            className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                              formState.contactPreference === option
+                                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white/10 dark:text-white'
+                                : 'border-black/10 bg-transparent dark:border-white/20'
+                            }`}
+                          >
+                            {contactPrefText[option]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {currentStep === 'project' && (
+                  <motion.div
+                    key="project"
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.35 }}
+                    className="space-y-5"
+                  >
+                    <div>
+                      <label className="text-sm font-semibold">Which service are you interested in?</label>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {services.map((svc) => (
+                          <button
+                            type="button"
+                            key={svc.slug}
+                            onClick={() => updateField('service', svc.slug)}
+                            className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                              formState.service === svc.slug
+                                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white/10 dark:text-white'
+                                : 'border-black/10 bg-transparent dark:border-white/20'
+                            }`}
+                          >
+                            {svc.name}
+                          </button>
+                        ))}
+                      </div>
+                      {errors.service ? <p className="mt-1 text-xs text-red-500">{errors.service}</p> : null}
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">Primary location</label>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        {locations.map((loc) => (
+                          <button
+                            type="button"
+                            key={loc.slug}
+                            onClick={() => updateField('location', loc.slug)}
+                            className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                              formState.location === loc.slug
+                                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white/10 dark:text-white'
+                                : 'border-black/10 bg-transparent dark:border-white/20'
+                            }`}
+                          >
+                            {loc.name}
+                          </button>
+                        ))}
+                      </div>
+                      {errors.location ? <p className="mt-1 text-xs text-red-500">{errors.location}</p> : null}
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">How did you hear about the studio?</label>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {hearAboutOptions.map((option) => (
+                          <button
+                            type="button"
+                            key={option}
+                            onClick={() => updateField('hearAbout', option)}
+                            className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                              formState.hearAbout === option
+                                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white/10 dark:text-white'
+                                : 'border-black/10 bg-transparent dark:border-white/20'
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {currentStep === 'details' && (
+                  <motion.div
+                    key="details"
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.35 }}
+                    className="space-y-5"
+                  >
+                    <div>
+                      <label className="text-sm font-semibold">Target date</label>
+                      <div className="mt-2 flex items-center gap-3">
+                        <Calendar className="h-5 w-5 opacity-60" />
+                        <input
+                          type="date"
+                          name="eventDate"
+                          value={formState.eventDate}
+                          onChange={(event) => updateField('eventDate', event.target.value)}
+                          className={`w-full rounded-xl px-4 py-3 transition focus:ring-2 ${toneClasses.input}`}
+                        />
+                      </div>
+                      <p className={`mt-2 text-xs ${toneClasses.subText}`}>
+                        Not sure yet? Leave blank and we’ll discuss timing during the consult.
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">Budget guidance</label>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {budgetOptions.map((budget) => (
+                          <button
+                            type="button"
+                            key={budget}
+                            onClick={() => updateField('budget', budget)}
+                            className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                              formState.budget === budget
+                                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white/10 dark:text-white'
+                                : 'border-black/10 bg-transparent dark:border-white/20'
+                            }`}
+                          >
+                            {budget}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">Tell us about your vision</label>
+                      <textarea
+                        name="message"
+                        rows={6}
+                        value={formState.message}
+                        onChange={(event) => updateField('message', event.target.value)}
+                        placeholder="Share locations, inspiration, guest count, or themes you have in mind."
+                        className={`mt-2 w-full rounded-xl px-4 py-3 transition focus:ring-2 resize-none ${toneClasses.input} ${
+                          errors.message ? 'border-red-400 focus:ring-red-300' : ''
+                        }`}
+                        required
+                      />
+                      {errors.message ? <p className="mt-1 text-xs text-red-500">{errors.message}</p> : null}
+                    </div>
+                    <label className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.28em]">
+                      <input
+                        type="checkbox"
+                        checked={formState.newsletter}
+                        onChange={(event) => updateField('newsletter', event.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                      />
+                      Keep me updated about seasonal offers and availability
+                    </label>
+                  </motion.div>
+                )}
+
+                {currentStep === 'review' && (
+                  <motion.div
+                    key="review"
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.35 }}
+                    className="space-y-5"
+                  >
+                    <div className={`rounded-2xl border p-5 ${toneClasses.card}`}>
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-emerald-500" /> Review your details
+                      </h3>
+                      <dl className={`mt-4 space-y-3 text-sm ${toneClasses.subText}`}>
+                        <div className="flex justify-between gap-4">
+                          <dt className="font-semibold text-current">Name</dt>
+                          <dd>{formState.name}</dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="font-semibold text-current">Email</dt>
+                          <dd>{formState.email}</dd>
+                        </div>
+                        {formState.phone ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="font-semibold text-current">Phone</dt>
+                            <dd>{formState.phone}</dd>
+                          </div>
+                        ) : null}
+                        <div className="flex justify-between gap-4">
+                          <dt className="font-semibold text-current">Service</dt>
+                          <dd>{currentService?.name ?? '—'}</dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="font-semibold text-current">Location</dt>
+                          <dd>{currentLocation?.name ?? '—'}</dd>
+                        </div>
+                        {formState.eventDate ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="font-semibold text-current">Target date</dt>
+                            <dd>{formState.eventDate}</dd>
+                          </div>
+                        ) : null}
+                        {formState.budget ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="font-semibold text-current">Budget</dt>
+                            <dd>{formState.budget}</dd>
+                          </div>
+                        ) : null}
+                        <div className="flex justify-between gap-4">
+                          <dt className="font-semibold text-current">Preferred contact</dt>
+                          <dd>{contactPrefText[formState.contactPreference]}</dd>
+                        </div>
+                      </dl>
+                      <button
+                        type="button"
+                        onClick={() => goToStep('intro')}
+                        className="mt-4 text-xs font-semibold uppercase tracking-[0.28em] underline-offset-4 hover:underline"
+                      >
+                        Edit information
+                      </button>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold">Final notes</label>
+                      <textarea
+                        rows={4}
+                        value={formState.message}
+                        onChange={(event) => updateField('message', event.target.value)}
+                        className={`mt-2 w-full rounded-xl px-4 py-3 transition focus:ring-2 resize-none ${toneClasses.input}`}
+                      />
+                      <p className={`mt-2 text-xs ${toneClasses.subText}`}>
+                        Share anything else we should know—timelines, collaborators, mood boards, or questions.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <input
+                type="text"
+                name="company"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(event) => setHoneypot(event.target.value)}
+                className="hidden"
+                aria-hidden="true"
+              />
+
+              {status === 'success' ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`mt-6 rounded-3xl border p-6 ${toneClasses.card}`}
+                >
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-amber-400" /> Thank you!
+                  </h3>
+                  <p className={`mt-3 text-sm ${toneClasses.subText}`}>
+                    Your enquiry is with the studio. We will reply within one business day with availability and a tailored
+                    next step. If you need to chat sooner, feel free to reach out directly below.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <a
+                      href="https://wa.me/27720000000"
+                      rel="noopener"
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600"
+                    >
+                      <MessageCircle className="h-4 w-4" /> Continue on WhatsApp
+                    </a>
+                    <a
+                      href="tel:+27720000000"
+                      className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${toneClasses.accent}`}
+                    >
+                      <Phone className="h-4 w-4" /> Call the studio
+                    </a>
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-current transition hover:bg-black/5 dark:hover:bg-white/10"
+                    >
+                      Send another enquiry
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className={`text-xs uppercase tracking-[0.28em] ${toneClasses.subText}`}>
+                    <span>Secure lead form · data encrypted in transit</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {currentStep !== 'intro' && currentStep !== 'review' && (
+                      <button
+                        type="button"
+                        onClick={handlePrev}
+                    className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-current transition hover:bg-black/5 dark:hover:bg-white/10"
+                      >
+                        <ChevronLeft className="h-4 w-4" /> Back
+                      </button>
+                    )}
+                    {currentStep !== 'review' ? (
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-gray-900/20 transition hover:bg-black dark:bg-white dark:text-neutral-900"
+                      >
+                        Next step <ChevronRight className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={status === 'submitting'}
+                        className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-gray-900/20 transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-neutral-900"
+                      >
+                        {status === 'submitting' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        {status === 'submitting' ? 'Sending…' : 'Submit enquiry'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {status === 'error' ? (
+                <p className="mt-3 text-sm text-red-500">
+                  Something went wrong while sending your message. Please email hello@laxportraits.com and we’ll respond as
+                  soon as possible.
+                </p>
+              ) : null}
             </form>
-          </motion.div>
+
+            <div className="mt-10 border-t border-black/10 pt-6 text-xs uppercase tracking-[0.28em] text-current/60 dark:border-white/10">
+              Ready sooner? Call +27 72 000 0000 and we will prioritise your brief.
+            </div>
+          </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
+export default ContactForm;

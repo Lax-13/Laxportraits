@@ -2,6 +2,7 @@ import { Navigate, useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { services, ServiceSlug } from '../../content/services';
 import { locations, LocationDetail } from '../../content/locations';
+import { ContactForm } from '../generated/ContactForm';
 
 const findService = (slug: string | undefined) =>
   services.find((service) => service.slug === (slug as ServiceSlug));
@@ -115,7 +116,7 @@ export const ServicePage = () => {
               ) : null}
               <a
                 className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-gray-900 font-semibold shadow-[0_20px_40px_rgba(255,122,63,0.25)] transition hover:shadow-[0_12px_30px_rgba(255,122,63,0.3)]"
-                href="#contact"
+                href="#lead-form"
               >
                 Check availability
               </a>
@@ -273,36 +274,18 @@ export const ServicePage = () => {
           </div>
         </section>
 
-        <section className="bg-neutral-950 py-16 sm:py-20 text-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Ready to plan your {service.name.toLowerCase()}?</h2>
-            <p className="mt-4 text-white/80 text-lg max-w-2xl mx-auto">
-              Book a consultation to confirm availability, shape the creative direction, and tailor a package that suits your
-              timeline.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <a
-                className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-gray-900 font-semibold shadow-[0_20px_40px_rgba(255,122,63,0.25)] transition hover:shadow-[0_12px_30px_rgba(255,122,63,0.3)]"
-                href="mailto:hello@laxportraits.com"
-              >
-                Email the studio
-              </a>
-              <a
-                className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-white backdrop-blur-md transition hover:border-white/70"
-                href="https://wa.me/27720000000"
-                rel="noopener"
-              >
-                WhatsApp the studio
-              </a>
-              <a
-                className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-white backdrop-blur-md transition hover:border-white/70"
-                href="tel:+27720000000"
-              >
-                Call +27 72 000 0000
-              </a>
-            </div>
-          </div>
-        </section>
+        <ContactForm
+          id="lead-form"
+          tone="dark"
+          title={`Plan your ${service.name.toLowerCase()}`}
+          subtitle={
+            location
+              ? locationHighlight ?? location.summary
+              : 'Share your timeline, location, and creative goals. We respond within one business day with a tailored plan.'
+          }
+          prefillService={service.slug}
+          prefillLocation={location?.name}
+        />
 
         <section className="bg-white py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
