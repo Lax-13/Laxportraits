@@ -11,6 +11,16 @@ export interface LocationDetail {
   }[];
   availabilityNote: string;
   serviceHighlights: Partial<Record<ServiceSlug, string>>;
+  caseStudies?: Partial<
+    Record<
+      ServiceSlug,
+      {
+        title: string;
+        summary: string;
+        link: string;
+      }[]
+    >
+  >;
 }
 
 export const locations: LocationDetail[] = [
@@ -41,6 +51,22 @@ export const locations: LocationDetail[] = [
       'fine-art-prints':
         'Johannesburg clients often opt for monochrome wall collections that complement modern interiors—framing consultations available in-person.',
     },
+    caseStudies: {
+      'weddings-and-elopements': [
+        {
+          title: 'Melville rooftop celebration',
+          summary: 'A sunset ceremony overlooking the CBD with a first-look inside a heritage loft apartment.',
+          link: '/#portfolio',
+        },
+      ],
+      'lifestyle-portraits': [
+        {
+          title: 'Parkhurst lifestyle session',
+          summary: 'Editorial portraits shot between café culture and leafy side streets at sunrise.',
+          link: '/#portfolio',
+        },
+      ],
+    },
   },
   {
     slug: 'pretoria',
@@ -68,6 +94,22 @@ export const locations: LocationDetail[] = [
         'Generational portraits under jacarandas remain a signature—plan for late afternoon to capture the glow.',
       'fine-art-prints':
         'Album spreads often highlight Pretoria’s seasonal colour palette—lavender hues translate beautifully to archival paper.',
+    },
+    caseStudies: {
+      'weddings-and-elopements': [
+        {
+          title: 'Union Buildings twilight vows',
+          summary: 'An intimate ceremony captured beneath jacarandas with editorial portraits on the terrace.',
+          link: '/#portfolio',
+        },
+      ],
+      'family-milestones': [
+        {
+          title: 'Brooklyn generational session',
+          summary: 'Three generations gathered at home, followed by sunset storytelling in the botanical garden.',
+          link: '/#portfolio',
+        },
+      ],
     },
   },
   {
@@ -97,6 +139,22 @@ export const locations: LocationDetail[] = [
       'fine-art-prints':
         'Clients favour museum glass and statement frames that complement Sandton penthouse interiors.',
     },
+    caseStudies: {
+      'brand-campaigns': [
+        {
+          title: 'Sandton rooftop lookbook',
+          summary: 'A fashion launch produced at golden hour with tethered previews for the marketing team.',
+          link: '/#portfolio',
+        },
+      ],
+      'corporate-and-events': [
+        {
+          title: 'Executive summit coverage',
+          summary: 'Multi-day leadership summit documented across the Sandton Convention Centre.',
+          link: '/#portfolio',
+        },
+      ],
+    },
   },
   {
     slug: 'midrand',
@@ -124,6 +182,15 @@ export const locations: LocationDetail[] = [
         'Estate clubhouses double as celebration venues—flexible coverage keeps speeches, details, and candid moments balanced.',
       'fine-art-prints':
         'Rustic textures and open skies translate into large-format prints perfect for spacious Midrand homes.',
+    },
+    caseStudies: {
+      'family-milestones': [
+        {
+          title: 'Waterfall family celebration',
+          summary: 'An afternoon garden party captured with candid storytelling and formal portraits.',
+          link: '/#portfolio',
+        },
+      ],
     },
   },
   {
@@ -153,6 +220,15 @@ export const locations: LocationDetail[] = [
       'fine-art-prints':
         'Creamy, neutral palettes from Centurion sessions pair beautifully with linen-bound album collections.',
     },
+    caseStudies: {
+      'weddings-and-elopements': [
+        {
+          title: 'Irene chapel wedding',
+          summary: 'A romantic chapel ceremony with lakeside portraits and candlelit reception coverage.',
+          link: '/#portfolio',
+        },
+      ],
+    },
   },
   {
     slug: 'soweto',
@@ -180,6 +256,22 @@ export const locations: LocationDetail[] = [
         'Legacy portraits with grandparents and extended family benefit from documentary-style storytelling in iconic streets.',
       'fine-art-prints':
         'Bold colours translate into statement wall art—metallic and acrylic finishes are popular with Soweto clients.',
+    },
+    caseStudies: {
+      'brand-campaigns': [
+        {
+          title: 'Vilakazi Street brand story',
+          summary: 'A lifestyle shoot celebrating local artisans with vivid colour palettes and street energy.',
+          link: '/#portfolio',
+        },
+      ],
+      'family-milestones': [
+        {
+          title: 'Orlando West legacy portraits',
+          summary: 'A family gathered at home and in the neighbourhood streets for a heritage-focused session.',
+          link: '/#portfolio',
+        },
+      ],
     },
   },
 ];

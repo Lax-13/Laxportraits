@@ -73,6 +73,7 @@ export const ServicePage = () => {
   }
 
   const locationLinks = locations.filter((loc) => loc.slug !== location?.slug);
+  const locationCaseStudies = location?.caseStudies?.[service.slug] ?? [];
 
   return (
     <>
@@ -149,6 +150,25 @@ export const ServicePage = () => {
                     ))}
                   </ul>
                 </div>
+                {locationCaseStudies.length ? (
+                  <div>
+                    <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-gray-500">Featured stories</h3>
+                    <ul className="mt-3 space-y-3 text-sm text-gray-700">
+                      {locationCaseStudies.map((story) => (
+                        <li key={`${story.title}-${story.link}`} className="rounded-2xl border border-gray-200 bg-white p-4">
+                          <p className="font-semibold text-gray-900">{story.title}</p>
+                          <p className="mt-1 text-gray-600">{story.summary}</p>
+                          <a
+                            href={story.link}
+                            className="mt-2 inline-flex items-center text-xs font-semibold uppercase tracking-[0.3em] text-gray-900"
+                          >
+                            View highlights →
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
               <aside className="space-y-5">
                 <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_12px_30px_rgba(0,0,0,0.05)]">
