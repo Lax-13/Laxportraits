@@ -1,43 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Heart, Users, Briefcase, Baby, Star } from 'lucide-react';
-const services = [{
-  id: 'weddings',
-  icon: Heart,
-  title: 'Weddings & elopements',
-  description: 'Full-day and intimate coverage with timeline support, detail-focused storytelling, and heirloom-ready edits.',
-  price: 'From R19 500'
-}, {
-  id: 'portraits',
-  icon: Camera,
-  title: 'Lifestyle portraits',
-  description: 'Editorial maternity and family sessions with relaxed direction and colour-rich post-production.',
-  price: 'From R3 800'
-}, {
-  id: 'events',
-  icon: Users,
-  title: 'Corporate & events',
-  description: 'Executive coverage, panel discussions, and celebrations documented with polished, consistent lighting.',
-  price: 'From R6 500'
-}, {
-  id: 'commercial',
-  icon: Briefcase,
-  title: 'Brand campaigns',
-  description: 'Art-directed imagery for product launches, influencers, and agencies across Gauteng.',
-  price: 'Custom quotes'
-}, {
-  id: 'family',
-  icon: Baby,
-  title: 'Family milestones',
-  description: 'Birthday gatherings, anniversaries, and multi-generational portraits captured with warmth.',
-  price: 'From R4 200'
-}, {
-  id: 'fine-art',
-  icon: Star,
-  title: 'Fine art prints',
-  description: 'Gallery-grade print collections and albums designed for gifting and display.',
-  price: 'From R2 200'
-}] as any[];
+import { Link } from 'react-router-dom';
+import { services as servicesData, ServiceSlug } from '../../content/services';
+
+const iconMap: Record<ServiceSlug, React.ComponentType<{ className?: string }>> = {
+  'weddings-and-elopements': Heart,
+  'lifestyle-portraits': Camera,
+  'corporate-and-events': Users,
+  'brand-campaigns': Briefcase,
+  'family-milestones': Baby,
+  'fine-art-prints': Star,
+};
 
 // @component: ServicesSection
 export const ServicesSection = () => {
@@ -60,9 +34,10 @@ export const ServicesSection = () => {
         </motion.header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => {
-          const IconComponent = service.icon;
-          return <motion.article key={service.id} initial={{
+          {servicesData.map((service, index) => {
+          const IconComponent = iconMap[service.slug];
+          const primaryPackage = service.packages[0];
+          return <motion.article key={service.slug} initial={{
             opacity: 0,
             y: 24
           }} whileInView={{
@@ -73,15 +48,21 @@ export const ServicesSection = () => {
             delay: index * 0.15
           }} viewport={{
             once: true
-          }} className="p-8 rounded-3xl bg-neutral-50 border border-black/5 shadow-[0_2px_0_0_rgba(0,0,0,0.04)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.06)] transition-shadow">
+          }} className="flex h-full flex-col rounded-3xl border border-black/5 bg-neutral-50 p-8 shadow-[0_2px_0_0_rgba(0,0,0,0.04)] transition-shadow hover:shadow-[0_6px_30px_rgba(0,0,0,0.06)]">
                 <div className="flex items-center space-x-3 mb-5">
                   <div className="w-10 h-10 rounded-2xl bg-white border border-black/5 flex items-center justify-center">
                     <IconComponent className="h-5 w-5 text-gray-900" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900"><span>{service.title}</span></h3>
+                  <h3 className="text-xl font-semibold text-gray-900"><span>{service.name}</span></h3>
                 </div>
-                <p className="text-gray-600 mb-6 leading-relaxed"><span>{service.description}</span></p>
-                <p className="text-gray-900 font-semibold"><span>{service.price}</span></p>
+                <p className="text-gray-600 mb-6 leading-relaxed"><span>{service.subheadline}</span></p>
+                {primaryPackage ? <p className="text-gray-900 font-semibold">{primaryPackage.price}</p> : null}
+                <Link
+                  to={`/services/${service.slug}`}
+                  className="mt-6 inline-flex items-center justify-center rounded-full border border-gray-800 px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-900 hover:text-white"
+                >
+                  Explore service
+                </Link>
               </motion.article>;
         })}
         </div>

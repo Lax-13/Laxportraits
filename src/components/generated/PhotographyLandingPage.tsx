@@ -79,7 +79,7 @@ export const PhotographyLandingPage = () => {
       </header>
 
       {/* Main Content */}
-      <main>
+    <main id="main">
         <section id="home">
           <HeroSection />
         </section>

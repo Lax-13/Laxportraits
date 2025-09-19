@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Container, Theme } from './settings/types';
 import { PhotographyLandingPage } from './components/generated/PhotographyLandingPage';
+import { ServicePage } from './components/pages/ServicePage';
 
 let theme: Theme = 'light';
 // only use 'centered' container for standalone components, never for full page apps or websites.
@@ -30,10 +32,14 @@ function App() {
 
   return (
     <>
-      <a className="skip-link" href="#contact">
-        Skip to contact
+      <a className="skip-link" href="#main">
+        Skip to content
       </a>
-      {content}
+      <Routes>
+        <Route path="/" element={content} />
+        <Route path="/services/:slug" element={<ServicePage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   );
 }
