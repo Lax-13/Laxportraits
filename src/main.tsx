@@ -1,9 +1,9 @@
 import { StrictMode } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App.tsx';
+import router from './routes';
 
 // Force light mode by removing dark class and preventing it from being added
 document.documentElement.classList.remove('dark');
@@ -30,9 +30,7 @@ mediaQuery.addEventListener('change', forceLightMode);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </HelmetProvider>
   </StrictMode>,
 );
