@@ -183,7 +183,24 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     }
     setStatus('submitting');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1400));
+      const response = await fetch('/api/create-lead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formState,
+          serviceName: currentService?.name,
+          locationName: currentLocation?.name,
+          source: 'website',
+          pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
       setStatus('success');
       if (typeof window !== 'undefined') {
         (window as any).dataLayer = (window as any).dataLayer || [];
