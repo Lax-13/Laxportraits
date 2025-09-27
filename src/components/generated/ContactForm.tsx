@@ -78,6 +78,16 @@ const stepTitles: Record<StepId, string> = {
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+type DataLayerEvent = {
+  event: string;
+  lead_context: string;
+  lead_location: string;
+};
+
+type WindowWithDataLayer = Window & {
+  dataLayer?: DataLayerEvent[];
+};
+
 const findLocationSlug = (value?: string) => {
   if (!value) return '';
   const normalised = value.trim().toLowerCase();
@@ -133,7 +143,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       service: initialService || prev.service,
       location: initialLocation || prev.location,
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialService, initialLocation]);
 
   useEffect(() => {
@@ -152,8 +161,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     } catch (error) {
       console.warn('Unable to restore saved enquiry', error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialLocation, initialService]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || status === 'success') return;
@@ -265,8 +273,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
       setStatus('success');
       if (typeof window !== 'undefined') {
-        (window as any).dataLayer = (window as any).dataLayer || [];
-        (window as any).dataLayer.push({
+        const typedWindow = window as WindowWithDataLayer;
+        typedWindow.dataLayer = typedWindow.dataLayer ?? [];
+        typedWindow.dataLayer.push({
           event: 'lead_submit',
           lead_context: formState.service || 'general',
           lead_location: formState.location || 'unspecified',

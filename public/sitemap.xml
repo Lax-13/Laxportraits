@@ -16,6 +16,11 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://www.laxportraits.com/services/maternity-portraits</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://www.laxportraits.com/services/corporate-and-events</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
@@ -92,6 +97,36 @@
   </url>
   <url>
     <loc>https://www.laxportraits.com/services/lifestyle-portraits/soweto</loc>
+    <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.laxportraits.com/services/maternity-portraits/johannesburg</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.laxportraits.com/services/maternity-portraits/pretoria</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.laxportraits.com/services/maternity-portraits/sandton</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.laxportraits.com/services/maternity-portraits/midrand</loc>
+    <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.laxportraits.com/services/maternity-portraits/centurion</loc>
+    <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.laxportraits.com/services/maternity-portraits/soweto</loc>
     <priority>0.5</priority>
     <changefreq>monthly</changefreq>
   </url>

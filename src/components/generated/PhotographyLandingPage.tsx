@@ -9,11 +9,16 @@ import { FaqSection } from './FaqSection';
 import { ContactForm } from './ContactForm';
 import { getAvailabilityForService } from '../../content/availability';
 
+type NavigationItem = {
+  label: string;
+  href: string;
+};
+
 // @component: PhotographyLandingPage
 export const PhotographyLandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const weddingsAvailability = getAvailabilityForService('weddings-and-elopements');
-  const navigationItems = [{
+  const navigationItems: NavigationItem[] = [{
     label: 'Home',
     href: '#home'
   }, {
@@ -31,7 +36,7 @@ export const PhotographyLandingPage = () => {
   }, {
     label: 'Contact',
     href: '#lead-form'
-  }] as any[];
+  }];
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
     element?.scrollIntoView({

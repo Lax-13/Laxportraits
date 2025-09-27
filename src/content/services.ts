@@ -1,6 +1,7 @@
 export type ServiceSlug =
   | 'weddings-and-elopements'
   | 'lifestyle-portraits'
+  | 'maternity-portraits'
   | 'corporate-and-events'
   | 'brand-campaigns'
   | 'family-milestones'
@@ -200,6 +201,87 @@ export const services: ServiceDetail[] = [
     canonical: 'https://www.laxportraits.com/services/lifestyle-portraits',
     metaDescription:
       'Lifestyle portrait photography in Gauteng with editorial styling. Studio, home, and on-location sessions by Laxportraits.',
+  },
+  {
+    slug: 'maternity-portraits',
+    name: 'Maternity portraits',
+    headline: 'Maternity portraits that feel intimate and elevated',
+    subheadline: 'Soft, light-first sessions celebrating motherhood with gentle pacing and luxe styling touches.',
+    description:
+      'Expectant parents receive calm, editorial direction with wardrobe support and considered posing that honours every stage. Choose studio, home, or outdoor settings to create luminous keepsakes before baby arrives.',
+    heroImage: {
+      src: '/assets/images/maternity/maternity-hero-7528.jpeg',
+      alt: 'Expectant mother in a flowing gown holding her bump at sunset',
+    },
+    highlights: [
+      'Studio, in-home, or outdoor sessions crafted around your comfort',
+      'Wardrobe guide plus access to the Laxportraits gown and draping collection',
+      'Gentle posing direction with room for partners and siblings',
+      'Complimentary retouching on featured wall art and album selections',
+    ],
+    packages: [
+      {
+        title: 'Signature maternity session',
+        price: 'From R4 800',
+        inclusions: [
+          '90-minute session with location and wardrobe styling consult',
+          'Access to curated gowns, draping, and accessory styling',
+          '60+ polished images delivered within two weeks',
+          'Online gallery with print store and frame recommendations',
+        ],
+      },
+      {
+        title: 'Bump-to-baby collection',
+        price: 'From R9 200',
+        inclusions: [
+          'Maternity and newborn sessions with cohesive creative direction',
+          'Professional hair and makeup coordination for your maternity date',
+          'Announcement-ready preview within 48 hours of each session',
+          'Heirloom album credit redeemable once baby photos are ready',
+        ],
+      },
+    ],
+    process: [
+      {
+        title: 'Design consultation',
+        detail: 'We align on mood, location, wardrobe, and any special keepsakes you want captured before the session.',
+      },
+      {
+        title: 'Calm, guided session',
+        detail: 'Breath-led pacing and gentle prompts ensure you feel supported while we create flattering, emotive portraits.',
+      },
+      {
+        title: 'Heirloom delivery',
+        detail: 'Receive your gallery within two weeks alongside print and album design suggestions curated for your space.',
+      },
+    ],
+    testimonials: [
+      {
+        quote: 'I felt completely seen and cared for—every frame feels like fine art while still being so tender.',
+        author: 'Lerato M.',
+      },
+      {
+        quote: 'They handled styling, HMU, and even album design. All we had to do was show up and breathe.',
+        author: 'Sihle & Thando',
+      },
+    ],
+    faq: [
+      {
+        question: 'When should we schedule maternity portraits?',
+        answer: 'We recommend booking between 28–34 weeks for comfortable movement, with flexible accommodations for high-risk pregnancies.',
+      },
+      {
+        question: 'Can partners or siblings join the session?',
+        answer: 'Absolutely—partners and up to two children are included. We can extend coverage for grandparents or larger families on request.',
+      },
+      {
+        question: 'Do you provide wardrobe options?',
+        answer: 'Yes. Our client closet features gowns, draping fabrics, and accessories. We also share a styling guide and can arrange boutique rentals.',
+      },
+    ],
+    canonical: 'https://www.laxportraits.com/services/maternity-portraits',
+    metaDescription:
+      'Maternity photography in Gauteng with calm direction, wardrobe styling, and heirloom print options by Laxportraits.',
   },
   {
     slug: 'corporate-and-events',

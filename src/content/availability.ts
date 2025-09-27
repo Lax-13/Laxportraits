@@ -19,6 +19,12 @@ export const availability: AvailabilityRecord[] = [
     seasonalNote: 'Priority scheduling for retainer partners through Q2.',
   },
   {
+    serviceSlug: 'maternity-portraits',
+    message: 'Weekday maternity sessions available from late February',
+    nextOpening: '2025-02-24',
+    seasonalNote: 'Sunrise and sunset slots book fastest during autumn golden hour.',
+  },
+  {
     serviceSlug: 'family-milestones',
     message: 'Golden hour sessions available every Thursday',
     nextOpening: '2025-02-20',

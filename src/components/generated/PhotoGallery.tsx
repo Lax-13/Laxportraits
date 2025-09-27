@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
-const galleryImages = [{
+
+type GalleryImage = {
+  id: string;
+  src: string;
+  alt: string;
+};
+
+const galleryImages: GalleryImage[] = [{
   id: 'img1',
   src: '/assets/images/gallery-weddings.png',
   alt: 'Editorial wedding portrait with natural light in Gauteng'
@@ -25,7 +32,7 @@ const galleryImages = [{
   id: 'img6',
   src: '/assets/images/gallery-brands@0.5x.png',
   alt: 'Product flatlay styled for a Gauteng campaign reveal'
-}] as any[];
+}];
 
 // @component: PhotoGallery
 export const PhotoGallery = () => {

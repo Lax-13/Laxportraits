@@ -1,15 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Heart, Users, Briefcase, Baby, Star } from 'lucide-react';
+import { Camera, Heart, Users, Briefcase, Baby, Star, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { services as servicesData, ServiceSlug } from '../../content/services';
 
 const iconMap: Record<ServiceSlug, React.ComponentType<{ className?: string }>> = {
   'weddings-and-elopements': Heart,
   'lifestyle-portraits': Camera,
-  'corporate-and-events': Users,
-  'brand-campaigns': Briefcase,
-  'family-milestones': Baby,
+  'maternity-portraits': Baby,
+  'corporate-and-events': Briefcase,
+  'brand-campaigns': Sparkles,
+  'family-milestones': Users,
   'fine-art-prints': Star,
 };
 

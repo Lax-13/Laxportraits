@@ -42,6 +42,8 @@ export const locations: LocationDetail[] = [
         'Timeline planning includes traffic-aware buffers and sunset scouting to make the most of city skylines and hidden garden venues.',
       'lifestyle-portraits':
         'We recommend sunrise sessions in Melville Koppies or editorial studio setups in Sandton for a paired urban + natural feel.',
+      'maternity-portraits':
+        'Sunrise greenhouse studios and secluded botanical corners create serene maternity portraits with privacy and glowing light.',
       'corporate-and-events':
         'On-site lighting kits keep corporate coverage consistent in conference centres across Sandton and the CBD.',
       'brand-campaigns':
@@ -86,6 +88,8 @@ export const locations: LocationDetail[] = [
         'Ceremonies in historic churches pair beautifully with sunset portraits along the Union Buildings terraces.',
       'lifestyle-portraits':
         'Soft morning light in Austin Roberts Bird Sanctuary creates gentle, movement-rich imagery for families.',
+      'maternity-portraits':
+        'Jacaranda blooms and botanical gardens give maternity sessions romantic pastel tones with easy access for outfit changes.',
       'corporate-and-events':
         'Government and embassy functions receive discreet coverage with expedited next-day delivery for press usage.',
       'brand-campaigns':
@@ -130,6 +134,8 @@ export const locations: LocationDetail[] = [
         'We maximise glass-façade reflections and ambient lighting for editorial reception imagery.',
       'lifestyle-portraits':
         'Combine luxury hotel suites with nearby greenbelts for a yin-and-yang portrait narrative.',
+      'maternity-portraits':
+        'Private penthouse suites and spa terraces offer luxurious maternity backdrops with concierge-level privacy.',
       'corporate-and-events':
         'Tethered shooting keeps executive headshots consistent when capturing entire leadership teams in one day.',
       'brand-campaigns':
@@ -174,6 +180,8 @@ export const locations: LocationDetail[] = [
         'Open landscapes allow for dramatic sunset portraits—bringing lighting assistants ensures cinematic results.',
       'lifestyle-portraits':
         'Horse trails and farm-style venues lend themselves to movement-forward maternity or engagement sessions.',
+      'maternity-portraits':
+        'Equestrian estates and veld backdrops provide relaxed maternity storytelling with space for family involvement.',
       'corporate-and-events':
         'Conference hubs in Waterfall receive multi-room coverage with rapid asset delivery for nationwide teams.',
       'brand-campaigns':
@@ -211,6 +219,8 @@ export const locations: LocationDetail[] = [
         'Estate chapels deliver soft window light—perfect for editorial ceremony coverage and elegant detail imagery.',
       'lifestyle-portraits':
         'Fields around Irene dairy provide natural movement prompts for toddlers and pets alike.',
+      'maternity-portraits':
+        'Lakefront boardwalks and private estate gardens deliver soft, flattering light with indoor options on standby for comfort.',
       'corporate-and-events':
         'Golf estate clubhouses host leadership retreats—we capture keynote tone, networking, and sponsor deliverables.',
       'brand-campaigns':
@@ -248,6 +258,8 @@ export const locations: LocationDetail[] = [
         'Storytelling angles honour cultural elements—expect documentary coverage that layers emotion and heritage.',
       'lifestyle-portraits':
         'We integrate murals and street musicians for portraits that pulse with Soweto’s energy.',
+      'maternity-portraits':
+        'Rooftop terraces and mural-lined streets celebrate motherhood with bold colour; nearby studios allow relaxed outfit changes.',
       'corporate-and-events':
         'Community activations and NGO events receive respectful, narrative-driven coverage for donor reports.',
       'brand-campaigns':
